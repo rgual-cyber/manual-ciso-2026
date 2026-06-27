@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner Interativo · Manual do CISO Elite 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --ink:    #11121A;
+  --ink2:   #1E2030;
+  --gold:   #C9A227;
+  --goldd:  #8A6D1A;
+  --goldl:  #F0DC8E;
+  --blue:   #2A4D8F;
+  --bluel:  #EEF2FA;
+  --panel:  #F7F5EF;
+  --panel2: #EFEADB;
+  --sand:   #FBF3DD;
+  --muted:  #8A8880;
+  --border: #D8D3C8;
+  --white:  #FFFFFF;
+  --red:    #9B2C2C;
+
+  --sidebar-w: 220px;
+  --content-max: 860px;
+  --gap: 32px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ════════════════════════════
+   HEADER
+════════════════════════════ */
+.site-header {
+  background: var(--ink);
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid var(--gold);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--gold);
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.header-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(201,162,39,0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  border-radius: 0;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--ink);
+}
+.btn-gold:hover { background: var(--goldl); }
+
+.btn-copy {
+  background: transparent;
+  color: var(--gold);
+  border: 1.5px solid var(--gold);
+}
+.btn-copy:hover { background: var(--gold); color: var(--ink); }
+
+.save-indicator {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.save-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4CAF50;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.save-dot.visible { opacity: 1; }
+
+/* ════════════════════════════
+   LAYOUT
+════════════════════════════ */
+.layout {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 64px);
+}
+
+/* ════════════════════════════
+   SIDEBAR — TIMELINE
+════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--ink2);
+  padding: 40px 0 40px;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,162,39,0.3) transparent;
+}
+
+.sidebar-section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 0 24px 10px;
+  margin-top: 8px;
+}
+
+.timeline {
+  position: relative;
+  padding: 0 0 20px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 35px;
+  top: 8px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.tl-item {
+  position: relative;
+  padding: 6px 20px 6px 60px;
+  cursor: pointer;
+  transition: background 0.12s;
+  text-decoration: none;
+  display: block;
+}
+.tl-item:hover { background: rgba(255,255,255,0.04); }
+.tl-item.active { background: rgba(201,162,39,0.08); }
+
+.tl-dot {
+  position: absolute;
+  left: 29px;
+  top: 11px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: var(--ink2);
+  transition: border-color 0.2s, background 0.2s;
+}
+.tl-item:hover .tl-dot,
+.tl-item.active .tl-dot {
+  border-color: var(--gold);
+  background: var(--gold);
+}
+
+.tl-dot.dot-sessao { border-color: var(--gold); }
+.tl-dot.dot-insight { border-color: var(--blue); }
+.tl-dot.dot-pausa { border-color: rgba(255,255,255,0.2); }
+
+.tl-time {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 1px;
+}
+.tl-dot.dot-pausa + .tl-time,
+.tl-item.pause-item .tl-time { color: rgba(255,255,255,0.25); }
+
+.tl-name {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.3;
+  display: block;
+}
+.tl-item:hover .tl-name,
+.tl-item.active .tl-name { color: rgba(255,255,255,0.9); }
+
+.tl-type {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+  display: block;
+}
+.tl-type.t-sessao { color: rgba(201,162,39,0.6); }
+.tl-type.t-insight { color: rgba(42,77,143,0.8); }
+.tl-type.t-abertura { color: rgba(201,162,39,0.9); }
+.tl-type.t-enc { color: rgba(255,255,255,0.3); }
+
+/* ════════════════════════════
+   MAIN CONTENT
+════════════════════════════ */
+.main {
+  flex: 1;
+  padding: 48px 48px 80px;
+  max-width: calc(var(--content-max) + 96px);
+}
+
+/* ── IDENTITY BLOCK (top of main) ── */
+.identity-block {
+  background: var(--white);
+  border-left: 4px solid var(--gold);
+  padding: 24px 28px;
+  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+
+.identity-block-title {
+  grid-column: 1 / -1;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.id-field label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--goldd);
+  margin-bottom: 4px;
+}
+.id-field .editable {
+  display: block;
+  min-height: 28px;
+  border-bottom: 1.5px solid var(--border);
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.id-field .editable:focus { border-color: var(--gold); }
+.id-field .editable:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* ── SECTION CARD ── */
+.section-card {
+  background: var(--white);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* left accent bar */
+.section-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+.card-sessao::before   { background: var(--gold); }
+.card-insight::before  { background: var(--blue); }
+.card-abertura::before { background: var(--gold); }
+.card-enc::before      { background: var(--border); }
+.card-pausa::before    { background: var(--border); }
+
+.card-header {
+  padding: 20px 28px 16px 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid var(--panel2);
+}
+
+.card-time-badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  width: 60px;
+  padding-top: 2px;
+}
+.card-insight .card-time-badge { color: var(--blue); }
+.card-pausa .card-time-badge,
+.card-enc .card-time-badge { color: var(--muted); font-size: 18px; }
+
+.card-header-info { flex: 1; }
+
+.card-type-tag {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+.tag-sessao   { background: var(--sand); color: var(--goldd); }
+.tag-abertura { background: var(--sand); color: var(--goldd); }
+.tag-insight  { background: var(--bluel); color: var(--blue); }
+.tag-pausa    { background: var(--panel2); color: var(--muted); }
+.tag-enc      { background: var(--panel2); color: var(--muted); }
+
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.card-speaker {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.card-speaker strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.card-duration {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+/* ── CARD BODY ── */
+.card-body {
+  padding: 24px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-pausa .card-body,
+.card-enc .card-body { padding: 16px 32px; }
+
+/* ── FIELD GROUPS ── */
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-group.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.field-group.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.field-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--goldd);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--panel2);
+}
+
+.field-hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 2px;
+}
+
+/* contenteditable input field */
+.editable {
+  outline: none;
+  border-bottom: 1.5px solid var(--border);
+  padding: 6px 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+  transition: border-color 0.15s, background 0.15s;
+  min-height: 32px;
+  display: block;
+}
+.editable:focus {
+  border-color: var(--gold);
+  background: rgba(201,162,39,0.03);
+}
+.editable:empty::before {
+  content: attr(data-placeholder);
+  color: #C4BFB6;
+  pointer-events: none;
+  font-style: italic;
+}
+
+/* textarea style */
+.editable.tall { min-height: 72px; }
+.editable.xl   { min-height: 100px; }
+
+/* ── SCALE / SLIDER ── */
+.scale-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.scale-label-left, .scale-label-right {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.scale-track {
+  flex: 1;
+  height: 4px;
+  background: var(--panel2);
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+}
+.scale-track input[type=range] {
+  position: absolute;
+  inset: -10px 0;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.scale-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+  border-radius: 2px;
+  width: 50%;
+  transition: width 0.2s;
+  pointer-events: none;
+}
+.scale-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  width: 24px;
+  text-align: center;
+}
+
+/* ── CHECK MATRIX ── */
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+}
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  user-select: none;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.check-item:hover { border-color: var(--gold); background: var(--sand); }
+.check-item.checked { border-color: var(--gold); background: var(--sand); }
+.check-item.checked .check-icon { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+.check-icon {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  font-size: 9px;
+  transition: all 0.12s;
+}
+
+/* ── NUMBERED LIST ── */
+.num-list { display: flex; flex-direction: column; gap: 8px; }
+.num-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.num-badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--gold);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.num-badge.blue { background: var(--blue); }
+.num-row .editable { flex: 1; }
+
+/* ── TABLE FIELD ── */
+.field-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.field-table th {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--gold);
+  padding: 8px 12px;
+  text-align: left;
+}
+.field-table td {
+  border-bottom: 1px solid var(--panel2);
+  padding: 4px 2px;
+  vertical-align: top;
+}
+.field-table tr:nth-child(even) td { background: var(--panel); }
+.field-table .editable {
+  border-bottom: none;
+  padding: 4px 8px;
+  min-height: 28px;
+  font-size: 12px;
+}
+
+/* ── INSIGHT BOX (Gold) ── */
+.insight-box {
+  background: var(--sand);
+  border-left: 3px solid var(--gold);
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.insight-box-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--goldd);
+  margin-bottom: 8px;
+}
+
+/* ── COMMITMENT BANNER ── */
+.commitment-banner {
+  background: var(--ink);
+  padding: 32px 36px;
+  margin-top: 8px;
+}
+.commitment-banner h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+.commit-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.commit-field-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201,162,39,0.6);
+  width: 130px;
+  flex-shrink: 0;
+  padding-top: 6px;
+}
+.commit-field .editable {
+  flex: 1;
+  color: var(--white);
+  border-color: rgba(255,255,255,0.12);
+  background: transparent;
+  font-size: 13px;
+}
+.commit-field .editable:focus { border-color: var(--gold); }
+.commit-field .editable:empty::before { color: rgba(255,255,255,0.2); }
+
+.sig-row {
+  display: flex;
+  gap: 32px;
+  margin-top: 24px;
+}
+.sig-field {
+  flex: 1;
+}
+.sig-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201,162,39,0.5);
+  margin-bottom: 8px;
+}
+.sig-line {
+  border-bottom: 1px solid rgba(201,162,39,0.3);
+  min-height: 36px;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--ink);
+  color: var(--white);
+  padding: 12px 20px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border-left: 3px solid var(--gold);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+  z-index: 999;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ════════════════════════════
+   PRINT STYLES
+════════════════════════════ */
+@media print {
+  .site-header,
+  .sidebar,
+  #toast { display: none !important; }
+
+  body { background: white; font-size: 11px; }
+
+  .layout { display: block; }
+  .main { padding: 0; max-width: 100%; }
+
+  .section-card {
+    page-break-inside: avoid;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+  }
+
+  .section-card::before { width: 3px; }
+
+  .editable {
+    border-bottom: 1px solid #ccc !important;
+    background: transparent !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .identity-block {
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  .commitment-banner {
+    background: #11121A !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    page-break-inside: avoid;
+  }
+
+  .check-item.checked {
+    background: #FBF3DD !important;
+    border-color: #C9A227 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    margin: 18mm 16mm;
+    size: A4;
+  }
+}
+
+/* ── PROGRESS BAR ── */
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.progress-bar-wrap {
+  flex: 1;
+  height: 3px;
+  background: var(--panel2);
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* ── PAUSA / ENC compact ── */
+.card-pausa .card-body,
+.card-enc .card-body {
+  padding: 14px 32px;
+}
+.pause-note {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-brand">
+    <div class="header-mark"></div>
+    <div>
+      <div class="header-title">Manual do CISO Elite</div>
+      <div class="header-sub">Planner Interativo · 2026</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="save-indicator">
+      <div class="save-dot" id="saveDot"></div>
+      <span id="saveLabel">Auto-salvo</span>
+    </div>
+    <button class="btn btn-ghost" onclick="clearAll()">Limpar tudo</button>
+    <button class="btn btn-copy" onclick="copyAll()">Copiar conteúdo</button>
+    <button class="btn btn-gold" onclick="window.print()">⊞ Gerar PDF</button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR TIMELINE -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Manhã</div>
+    <nav class="timeline">
+      <a class="tl-item" href="#s1">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">08:00</span>
+        <span class="tl-type t-abertura">Abertura · 30 min</span>
+        <span class="tl-name">O Ponto de Inflexão do CISO</span>
+      </a>
+      <a class="tl-item" href="#s2">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">08:30</span>
+        <span class="tl-type t-sessao">Sessão · 1h30</span>
+        <span class="tl-name">Arquitetura de Decisão</span>
+      </a>
+      <a class="tl-item pause-item" href="#p1">
+        <div class="tl-dot dot-pausa"></div>
+        <span class="tl-time" style="color:rgba(255,255,255,0.2)">10:00</span>
+        <span class="tl-type t-enc">Intervalo · 15 min</span>
+        <span class="tl-name" style="opacity:.4">Pausa</span>
+      </a>
+      <a class="tl-item" href="#i1">
+        <div class="tl-dot dot-insight"></div>
+        <span class="tl-time" style="color:#2A4D8F">10:15</span>
+        <span class="tl-type t-insight">Leadership Insight</span>
+        <span class="tl-name">Vinicius Durbano</span>
+      </a>
+      <a class="tl-item" href="#s3">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">10:30</span>
+        <span class="tl-type t-sessao">Sessão · 1h30</span>
+        <span class="tl-name">Engenharia Cultural</span>
+      </a>
+      <a class="tl-item pause-item" href="#p2">
+        <div class="tl-dot dot-pausa"></div>
+        <span class="tl-time" style="color:rgba(255,255,255,0.2)">12:00</span>
+        <span class="tl-type t-enc">Intervalo · 1h30</span>
+        <span class="tl-name" style="opacity:.4">Almoço</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-section-label" style="margin-top:8px;">Tarde</div>
+    <nav class="timeline">
+      <a class="tl-item" href="#i2">
+        <div class="tl-dot dot-insight"></div>
+        <span class="tl-time" style="color:#2A4D8F">13:30</span>
+        <span class="tl-type t-insight">Leadership Insight</span>
+        <span class="tl-name">Jorge Azevedo</span>
+      </a>
+      <a class="tl-item" href="#s4">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">14:30</span>
+        <span class="tl-type t-sessao">Sessão · 1h</span>
+        <span class="tl-name">Blueprint do vCISO</span>
+      </a>
+      <a class="tl-item" href="#i3">
+        <div class="tl-dot dot-insight"></div>
+        <span class="tl-time" style="color:#2A4D8F">15:30</span>
+        <span class="tl-type t-insight">Leadership Insight</span>
+        <span class="tl-name">Francisco Neto</span>
+      </a>
+      <a class="tl-item pause-item" href="#p3">
+        <div class="tl-dot dot-pausa"></div>
+        <span class="tl-time" style="color:rgba(255,255,255,0.2)">15:50</span>
+        <span class="tl-type t-enc">Intervalo · 10 min</span>
+        <span class="tl-name" style="opacity:.4">Pausa</span>
+      </a>
+      <a class="tl-item" href="#s5">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">16:00</span>
+        <span class="tl-type t-sessao">Sessão · 1h</span>
+        <span class="tl-name">Método ASSENTO</span>
+      </a>
+      <a class="tl-item" href="#i4">
+        <div class="tl-dot dot-insight"></div>
+        <span class="tl-time" style="color:#2A4D8F">17:00</span>
+        <span class="tl-type t-insight">Leadership Insight</span>
+        <span class="tl-name">Apura</span>
+      </a>
+      <a class="tl-item" href="#s6">
+        <div class="tl-dot dot-sessao"></div>
+        <span class="tl-time">17:15</span>
+        <span class="tl-type t-sessao">Sessão · 45 min</span>
+        <span class="tl-name">Inteligência de Mercado</span>
+      </a>
+      <a class="tl-item pause-item" href="#enc">
+        <div class="tl-dot dot-pausa"></div>
+        <span class="tl-time" style="color:rgba(255,255,255,0.2)">18:00</span>
+        <span class="tl-type t-enc">Encerramento</span>
+        <span class="tl-name" style="opacity:.4">Fim do evento</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PROGRESS -->
+    <div class="progress-header">
+      <span class="progress-label" id="progressLabel">0% preenchido</span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- IDENTITY -->
+    <div class="identity-block" id="identity">
+      <div class="identity-block-title">Suas informações</div>
+      <div class="id-field">
+        <label>Nome completo</label>
+        <div class="editable" contenteditable="true" data-id="id-nome" data-placeholder="Seu nome"></div>
+      </div>
+      <div class="id-field">
+        <label>Cargo atual</label>
+        <div class="editable" contenteditable="true" data-id="id-cargo" data-placeholder="CISO / vCISO / Diretor..."></div>
+      </div>
+      <div class="id-field">
+        <label>Empresa / Clientes</label>
+        <div class="editable" contenteditable="true" data-id="id-empresa" data-placeholder="Organização"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S1 · ABERTURA 08:00
+    ═══════════════════════════════════ -->
+    <div class="section-card card-abertura" id="s1">
+      <div class="card-header">
+        <div class="card-time-badge">08<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:00</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-abertura">Abertura · 30 min</span>
+          <div class="card-title">Sessão 1: O Ponto de Inflexão do CISO<br><span style="font-weight:400;font-size:14px">De Operador a Conselheiro Estratégico</span></div>
+          <div class="card-speaker"><strong>Denny Roger</strong></div>
+        </div>
+        <div class="card-duration">30 min</div>
+      </div>
+      <div class="card-body">
+
+        <div class="insight-box">
+          <div class="insight-box-label">🎯 Tema central</div>
+          O momento em que o CISO deixa de ser executor técnico e passa a ser conselheiro estratégico — o que mudou, o que ainda está travado, e o primeiro passo real da transformação.
+        </div>
+
+        <div>
+          <div class="field-label">Meu maior insight desta abertura</div>
+          <div class="editable tall" contenteditable="true" data-id="s1-insight" data-placeholder="O que mais me impactou nesta sessão de abertura..."></div>
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">Onde estou hoje</div>
+            <div class="field-hint">No eixo Operador → Conselheiro</div>
+            <div style="margin-top:8px;">
+              <div class="scale-row">
+                <span class="scale-label-left">Operador</span>
+                <div class="scale-track">
+                  <input type="range" min="1" max="10" value="5" data-id="s1-scale" oninput="updateScale(this)">
+                  <div class="scale-fill" id="s1-scale-fill"></div>
+                </div>
+                <span class="scale-value" id="s1-scale-val">5</span>
+                <span class="scale-label-right">Conselheiro</span>
+              </div>
+            </div>
+            <div class="editable" contenteditable="true" data-id="s1-posicao" data-placeholder="O que me mantém nessa posição..." style="margin-top:8px;"></div>
+          </div>
+          <div>
+            <div class="field-label">Onde quero estar em 90 dias</div>
+            <div class="editable tall" contenteditable="true" data-id="s1-meta90" data-placeholder="Meta de posicionamento executivo..."></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">3 comportamentos que vou mudar</div>
+          <div class="num-list">
+            <div class="num-row"><div class="num-badge">1</div><div class="editable" contenteditable="true" data-id="s1-mud1" data-placeholder="Parar de..."></div></div>
+            <div class="num-row"><div class="num-badge">2</div><div class="editable" contenteditable="true" data-id="s1-mud2" data-placeholder="Começar a..."></div></div>
+            <div class="num-row"><div class="num-badge">3</div><div class="editable" contenteditable="true" data-id="s1-mud3" data-placeholder="Fazer diferente..."></div></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Minha próxima ação concreta — até amanhã</div>
+          <div class="editable" contenteditable="true" data-id="s1-acao" data-placeholder="Uma ação específica e verificável..."></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S2 · SESSÃO 08:30
+    ═══════════════════════════════════ -->
+    <div class="section-card card-sessao" id="s2">
+      <div class="card-header">
+        <div class="card-time-badge">08<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:30</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-sessao">Sessão · 1h30</span>
+          <div class="card-title">Sessão 2: Arquitetura de Decisão<br><span style="font-weight:400;font-size:14px">Eliminando a Fricção Sistêmica</span></div>
+          <div class="card-speaker"><strong>Moniqui Agnes</strong></div>
+        </div>
+        <div class="card-duration">1h 30min</div>
+      </div>
+      <div class="card-body">
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">O que é fricção sistêmica na minha org</div>
+            <div class="editable tall" contenteditable="true" data-id="s2-friccao" data-placeholder="Onde as decisões travam na minha organização..."></div>
+          </div>
+          <div>
+            <div class="field-label">Decisão que estou evitando tomar</div>
+            <div class="editable tall" contenteditable="true" data-id="s2-decisao-evitada" data-placeholder="A decisão que eu sei que precisa ser tomada..."></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Minha arquitetura de decisão atual — diagnóstico</div>
+          <div class="check-grid">
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk1"><div class="check-icon"></div>Decisões centralizadas em mim</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk2"><div class="check-icon"></div>Falta de critérios claros de escalada</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk3"><div class="check-icon"></div>Board não está no loop certo</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk4"><div class="check-icon"></div>Processos lentos por falta de dados</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk5"><div class="check-icon"></div>Silos entre segurança e negócio</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s2-chk6"><div class="check-icon"></div>Cultura de "não" em vez de "como"</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Framework de decisão que vou adotar</div>
+          <div class="editable tall" contenteditable="true" data-id="s2-framework" data-placeholder="Como vou estruturar minhas decisões a partir de agora..."></div>
+        </div>
+
+        <div>
+          <div class="field-label">3 insights de Moniqui Agnes</div>
+          <div class="num-list">
+            <div class="num-row"><div class="num-badge">1</div><div class="editable" contenteditable="true" data-id="s2-ins1" data-placeholder="Insight 1..."></div></div>
+            <div class="num-row"><div class="num-badge">2</div><div class="editable" contenteditable="true" data-id="s2-ins2" data-placeholder="Insight 2..."></div></div>
+            <div class="num-row"><div class="num-badge">3</div><div class="editable" contenteditable="true" data-id="s2-ins3" data-placeholder="Insight 3..."></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAUSA 10:00 -->
+    <div class="section-card card-pausa" id="p1">
+      <div class="card-header" style="border:none;padding:12px 28px 12px 32px;">
+        <div class="card-time-badge" style="font-size:16px;">10:00</div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-pausa">Intervalo · 15 min</span>
+          <div class="card-title" style="font-size:14px;color:var(--muted);">Pausa</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pause-note">Use estes 15 minutos para consolidar seus anotados e preparar uma pergunta para o próximo bloco.</div>
+        <div class="editable" contenteditable="true" data-id="p1-nota" data-placeholder="Pergunta ou reflexão para o próximo bloco..."></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         I1 · LEADERSHIP INSIGHT 10:15 — Vinicius Durbano
+    ═══════════════════════════════════ -->
+    <div class="section-card card-insight" id="i1">
+      <div class="card-header">
+        <div class="card-time-badge" style="color:var(--blue);">10<br><span style="font-size:13px;opacity:0.5">:15</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-insight">Leadership Insight</span>
+          <div class="card-title">Vinicius Durbano</div>
+          <div class="card-speaker">CEO da EcoTrust</div>
+        </div>
+        <div class="card-duration" style="color:var(--blue);">Insight</div>
+      </div>
+      <div class="card-body">
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label" style="color:var(--blue);">Perspectiva do CEO de tecnologia</div>
+            <div class="editable tall" contenteditable="true" data-id="i1-perspectiva" data-placeholder="O que o CEO vê que o CISO costuma não ver..."></div>
+          </div>
+          <div>
+            <div class="field-label" style="color:var(--blue);">Como isso muda minha abordagem</div>
+            <div class="editable tall" contenteditable="true" data-id="i1-mudanca" data-placeholder="Aplicação prática na minha realidade..."></div>
+          </div>
+        </div>
+        <div>
+          <div class="field-label" style="color:var(--blue);">Frase ou conceito que vou levar</div>
+          <div class="editable" contenteditable="true" data-id="i1-frase" data-placeholder="A ideia mais marcante de Vinicius Durbano..."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S3 · SESSÃO 10:30
+    ═══════════════════════════════════ -->
+    <div class="section-card card-sessao" id="s3">
+      <div class="card-header">
+        <div class="card-time-badge">10<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:30</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-sessao">Sessão · 1h30</span>
+          <div class="card-title">Sessão 3: Engenharia Cultural<br><span style="font-weight:400;font-size:14px">A Segurança como Business Enabler</span></div>
+          <div class="card-speaker"><strong>Moniqui Agnes</strong></div>
+        </div>
+        <div class="card-duration">1h 30min</div>
+      </div>
+      <div class="card-body">
+
+        <div class="insight-box">
+          <div class="insight-box-label">💡 Premissa</div>
+          Cultura não é treinamento de phishing. É o sistema de crenças que determina como as pessoas decidem quando ninguém está olhando.
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">Como descreveria a cultura de segurança hoje</div>
+            <div class="editable tall" contenteditable="true" data-id="s3-cultura-hoje" data-placeholder="3 adjetivos honestos sobre a cultura atual..."></div>
+          </div>
+          <div>
+            <div class="field-label">Cultura-alvo em 12 meses</div>
+            <div class="editable tall" contenteditable="true" data-id="s3-cultura-alvo" data-placeholder="Como quero que as pessoas descrevam segurança..."></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Onde a segurança está sendo obstáculo (em vez de enabler)</div>
+          <div class="check-grid">
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs1"><div class="check-icon"></div>Processos lentos de aprovação</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs2"><div class="check-icon"></div>Times de produto evitam segurança</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs3"><div class="check-icon"></div>Reputação de "departamento do não"</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs4"><div class="check-icon"></div>Falta de visibilidade do valor entregue</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs5"><div class="check-icon"></div>Comunicação técnica com audiência errada</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s3-obs6"><div class="check-icon"></div>Métricas de segurança não falam de negócio</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Meu plano de engenharia cultural — 3 iniciativas</div>
+          <table class="field-table">
+            <thead><tr><th>Iniciativa</th><th>Público-alvo</th><th>Métrica de sucesso</th><th>Prazo</th></tr></thead>
+            <tbody>
+              <tr><td><div class="editable" contenteditable="true" data-id="s3-init1" data-placeholder="Ação..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pub1" data-placeholder="Quem..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-met1" data-placeholder="Como medir..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pz1" data-placeholder="Data..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s3-init2" data-placeholder="Ação..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pub2" data-placeholder="Quem..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-met2" data-placeholder="Como medir..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pz2" data-placeholder="Data..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s3-init3" data-placeholder="Ação..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pub3" data-placeholder="Quem..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-met3" data-placeholder="Como medir..."></div></td><td><div class="editable" contenteditable="true" data-id="s3-pz3" data-placeholder="Data..."></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAUSA / ALMOÇO 12:00 -->
+    <div class="section-card card-pausa" id="p2">
+      <div class="card-header" style="border:none;padding:12px 28px 12px 32px;">
+        <div class="card-time-badge" style="font-size:16px;">12:00</div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-pausa">Intervalo · 1h30</span>
+          <div class="card-title" style="font-size:14px;color:var(--muted);">Almoço</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pause-note">Momento de networking. Com quem você se conectou? O que surgiu de relevante nas conversas?</div>
+        <div class="editable" contenteditable="true" data-id="p2-networking" data-placeholder="Conexões e conversas relevantes do almoço..."></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         I2 · LEADERSHIP INSIGHT 13:30 — Jorge Azevedo
+    ═══════════════════════════════════ -->
+    <div class="section-card card-insight" id="i2">
+      <div class="card-header">
+        <div class="card-time-badge" style="color:var(--blue);">13<br><span style="font-size:13px;opacity:0.5">:30</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-insight">Leadership Insight</span>
+          <div class="card-title">Jorge Azevedo</div>
+          <div class="card-speaker">Executivo global, investidor e membro de conselho</div>
+        </div>
+        <div class="card-duration" style="color:var(--blue);">Insight</div>
+      </div>
+      <div class="card-body">
+
+        <div class="insight-box" style="border-color:var(--blue);background:var(--bluel);">
+          <div class="insight-box-label" style="color:var(--blue);">🏛️ Perspectiva do board</div>
+          O que um investidor e membro de conselho precisa ouvir do CISO — e o que faz a diferença entre credibilidade e ruído.
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label" style="color:var(--blue);">O que o board quer saber do CISO</div>
+            <div class="editable tall" contenteditable="true" data-id="i2-board" data-placeholder="As perguntas reais que um board member faria..."></div>
+          </div>
+          <div>
+            <div class="field-label" style="color:var(--blue);">Como vou mudar minha comunicação com o board</div>
+            <div class="editable tall" contenteditable="true" data-id="i2-comunicacao" data-placeholder="Mudança concreta na minha próxima apresentação..."></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label" style="color:var(--blue);">Exercício: converta um risco técnico em linguagem de capital</div>
+          <table class="field-table">
+            <thead><tr><th>Risco Técnico</th><th>Impacto em Negócio / Capital</th><th>Recomendação ao Board</th></tr></thead>
+            <tbody>
+              <tr><td><div class="editable" contenteditable="true" data-id="i2-ris1" data-placeholder="Ex: Vulnerabilidade crítica em API..."></div></td><td><div class="editable" contenteditable="true" data-id="i2-imp1" data-placeholder="Ex: Risco de R$X em receita..."></div></td><td><div class="editable" contenteditable="true" data-id="i2-rec1" data-placeholder="Ex: Investimento de R$Y..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="i2-ris2" data-placeholder="Risco 2..."></div></td><td><div class="editable" contenteditable="true" data-id="i2-imp2" data-placeholder="Impacto..."></div></td><td><div class="editable" contenteditable="true" data-id="i2-rec2" data-placeholder="Recomendação..."></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="field-label" style="color:var(--blue);">Insight mais marcante de Jorge Azevedo</div>
+          <div class="editable" contenteditable="true" data-id="i2-frase" data-placeholder="A ideia que vou levar para minha próxima reunião de board..."></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S4 · SESSÃO 14:30
+    ═══════════════════════════════════ -->
+    <div class="section-card card-sessao" id="s4">
+      <div class="card-header">
+        <div class="card-time-badge">14<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:30</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-sessao">Sessão · 1h</span>
+          <div class="card-title">Sessão 4: O Blueprint do vCISO<br><span style="font-weight:400;font-size:14px">Framework Operacional de Alta Performance</span></div>
+          <div class="card-speaker"><strong>Denny Roger</strong></div>
+        </div>
+        <div class="card-duration">1h</div>
+      </div>
+      <div class="card-body">
+
+        <div>
+          <div class="field-label">Meu modelo atual de atuação</div>
+          <div class="check-grid">
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod1"><div class="check-icon"></div>CISO interno (CLT)</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod2"><div class="check-icon"></div>CISO interno (PJ)</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod3"><div class="check-icon"></div>vCISO — 1 cliente</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod4"><div class="check-icon"></div>vCISO — múltiplos clientes</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod5"><div class="check-icon"></div>Consultor / Mentor</div>
+            <div class="check-item" onclick="toggleCheck(this)" data-id="s4-mod6"><div class="check-icon"></div>Em transição</div>
+          </div>
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">Meu blueprint vCISO — estrutura de serviço</div>
+            <div class="editable tall" contenteditable="true" data-id="s4-blueprint" data-placeholder="Como estruturo (ou vou estruturar) minha prática vCISO..."></div>
+          </div>
+          <div>
+            <div class="field-label">Gap operacional mais crítico hoje</div>
+            <div class="editable tall" contenteditable="true" data-id="s4-gap" data-placeholder="O que está faltando na minha operação como vCISO..."></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">Tiers de serviço — estrutura de proposta de valor</div>
+          <table class="field-table">
+            <thead><tr><th>Tier</th><th>Escopo / Entregáveis</th><th>Cadência</th><th>Precificação-alvo</th></tr></thead>
+            <tbody>
+              <tr><td><div class="editable" contenteditable="true" data-id="s4-t1n" data-placeholder="Essencial"></div></td><td><div class="editable" contenteditable="true" data-id="s4-t1e" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t1c" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t1p" data-placeholder="R$..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s4-t2n" data-placeholder="Estratégico"></div></td><td><div class="editable" contenteditable="true" data-id="s4-t2e" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t2c" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t2p" data-placeholder="R$..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s4-t3n" data-placeholder="Elite / Board"></div></td><td><div class="editable" contenteditable="true" data-id="s4-t3e" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t3c" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s4-t3p" data-placeholder="R$..."></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="field-label">Próximo passo concreto para minha prática vCISO</div>
+          <div class="editable" contenteditable="true" data-id="s4-proximo" data-placeholder="Uma ação específica com data..."></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         I3 · LEADERSHIP INSIGHT 15:30 — Francisco Neto
+    ═══════════════════════════════════ -->
+    <div class="section-card card-insight" id="i3">
+      <div class="card-header">
+        <div class="card-time-badge" style="color:var(--blue);">15<br><span style="font-size:13px;opacity:0.5">:30</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-insight">Leadership Insight</span>
+          <div class="card-title">Francisco Neto</div>
+          <div class="card-speaker">Sócio Diretor da AllTech</div>
+        </div>
+        <div class="card-duration" style="color:var(--blue);">Insight</div>
+      </div>
+      <div class="card-body">
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label" style="color:var(--blue);">Perspectiva do ecossistema de parceiros</div>
+            <div class="editable tall" contenteditable="true" data-id="i3-ecosistema" data-placeholder="Como parceiros e integradores veem o CISO..."></div>
+          </div>
+          <div>
+            <div class="field-label" style="color:var(--blue);">Oportunidade de parceria que vejo</div>
+            <div class="editable tall" contenteditable="true" data-id="i3-parceria" data-placeholder="Uma parceria concreta que quero explorar..."></div>
+          </div>
+        </div>
+        <div>
+          <div class="field-label" style="color:var(--blue);">Insight que vou aplicar</div>
+          <div class="editable" contenteditable="true" data-id="i3-aplicar" data-placeholder="Aplicação direta na minha realidade..."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSA 15:50 -->
+    <div class="section-card card-pausa" id="p3">
+      <div class="card-header" style="border:none;padding:12px 28px 12px 32px;">
+        <div class="card-time-badge" style="font-size:16px;">15:50</div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-pausa">Intervalo · 10 min</span>
+          <div class="card-title" style="font-size:14px;color:var(--muted);">Pausa</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="editable" contenteditable="true" data-id="p3-nota" data-placeholder="Reflexão rápida — o que está consolidando até aqui..."></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S5 · SESSÃO 16:00
+    ═══════════════════════════════════ -->
+    <div class="section-card card-sessao" id="s5">
+      <div class="card-header">
+        <div class="card-time-badge">16<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:00</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-sessao">Sessão · 1h</span>
+          <div class="card-title">Sessão 5: O Método ASSENTO<br><span style="font-weight:400;font-size:14px">Traduzindo Risco em Linguagem de Capital</span></div>
+          <div class="card-speaker"><strong>Denny Roger</strong></div>
+        </div>
+        <div class="card-duration">1h</div>
+      </div>
+      <div class="card-body">
+
+        <div class="insight-box">
+          <div class="insight-box-label">📐 O Método ASSENTO</div>
+          A estrutura para fazer o CISO sentar à mesa onde as decisões de capital são tomadas — não como auditor, mas como conselheiro estratégico com linguagem de negócio.
+        </div>
+
+        <div>
+          <div class="field-label">Meu mapa de stakeholders — quem precisa me ouvir</div>
+          <table class="field-table">
+            <thead><tr><th>Stakeholder / Grupo</th><th>O que eles precisam ouvir</th><th>Minha abordagem atual</th><th>Minha abordagem ideal</th></tr></thead>
+            <tbody>
+              <tr><td><div class="editable" contenteditable="true" data-id="s5-st1" data-placeholder="Board / Conselho"></div></td><td><div class="editable" contenteditable="true" data-id="s5-st1n" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st1a" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st1i" data-placeholder="..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s5-st2" data-placeholder="CEO / CFO"></div></td><td><div class="editable" contenteditable="true" data-id="s5-st2n" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st2a" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st2i" data-placeholder="..."></div></td></tr>
+              <tr><td><div class="editable" contenteditable="true" data-id="s5-st3" data-placeholder="CTO / CPO"></div></td><td><div class="editable" contenteditable="true" data-id="s5-st3n" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st3a" data-placeholder="..."></div></td><td><div class="editable" contenteditable="true" data-id="s5-st3i" data-placeholder="..."></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">Risco que vou traduzir para linguagem de capital esta semana</div>
+            <div class="editable tall" contenteditable="true" data-id="s5-risco" data-placeholder="Risco técnico → impacto financeiro → recomendação executiva..."></div>
+          </div>
+          <div>
+            <div class="field-label">Meu ASSENTO — como conquistar ou manter</div>
+            <div class="editable tall" contenteditable="true" data-id="s5-assento" data-placeholder="Estratégia concreta para minha cadeira na mesa executiva..."></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         I4 · LEADERSHIP INSIGHT 17:00 — Apura
+    ═══════════════════════════════════ -->
+    <div class="section-card card-insight" id="i4">
+      <div class="card-header">
+        <div class="card-time-badge" style="color:var(--blue);">17<br><span style="font-size:13px;opacity:0.5">:00</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-insight">Leadership Insight</span>
+          <div class="card-title">Apura</div>
+          <div class="card-speaker">Leadership Insight · Tarde</div>
+        </div>
+        <div class="card-duration" style="color:var(--blue);">Insight</div>
+      </div>
+      <div class="card-body">
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label" style="color:var(--blue);">Perspectiva principal</div>
+            <div class="editable tall" contenteditable="true" data-id="i4-perspectiva" data-placeholder="Ideia central do speaker..."></div>
+          </div>
+          <div>
+            <div class="field-label" style="color:var(--blue);">Aplicação na minha realidade</div>
+            <div class="editable tall" contenteditable="true" data-id="i4-aplicacao" data-placeholder="Como isso muda algo concreto na minha atuação..."></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         S6 · SESSÃO 17:15
+    ═══════════════════════════════════ -->
+    <div class="section-card card-sessao" id="s6">
+      <div class="card-header">
+        <div class="card-time-badge">17<br><span style="font-size:13px;color:rgba(201,162,39,0.5)">:15</span></div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-sessao">Sessão · 45 min</span>
+          <div class="card-title">Sessão 6: Inteligência de Mercado<br><span style="font-weight:400;font-size:14px">Expansão Global do vCISO</span></div>
+          <div class="card-speaker"><strong>Denny Roger</strong></div>
+        </div>
+        <div class="card-duration">45 min</div>
+      </div>
+      <div class="card-body">
+
+        <div>
+          <div class="field-label">Oportunidades de mercado que mapeei</div>
+          <div class="field-group row-3" style="margin-top:8px;">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">🇧🇷 Brasil</div>
+              <div class="editable tall" contenteditable="true" data-id="s6-br" data-placeholder="Setores, nichos, oportunidades no Brasil..."></div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">🇵🇹 Portugal</div>
+              <div class="editable tall" contenteditable="true" data-id="s6-pt" data-placeholder="Oportunidades pós-NIS2 em Portugal..."></div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">🇦🇴 Angola</div>
+              <div class="editable tall" contenteditable="true" data-id="s6-ao" data-placeholder="Mercado emergente em Angola..."></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group row-2">
+          <div>
+            <div class="field-label">Minha diferenciação competitiva como vCISO global</div>
+            <div class="editable tall" contenteditable="true" data-id="s6-dif" data-placeholder="O que me torna único no mercado lusófono..."></div>
+          </div>
+          <div>
+            <div class="field-label">Conexão mais valiosa que fiz hoje — próximo passo</div>
+            <div class="editable" contenteditable="true" data-id="s6-conexao-nome" data-placeholder="Nome / empresa..." style="margin-bottom:6px;"></div>
+            <div class="editable" contenteditable="true" data-id="s6-conexao-passo" data-placeholder="O que vou propor a essa pessoa..."></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ENCERRAMENTO 18:00 -->
+    <div class="section-card card-enc" id="enc">
+      <div class="card-header" style="border:none;padding:14px 28px 14px 32px;">
+        <div class="card-time-badge" style="font-size:16px;color:var(--muted)">18:00</div>
+        <div class="card-header-info">
+          <span class="card-type-tag tag-enc">Encerramento</span>
+          <div class="card-title" style="font-size:15px;color:var(--muted);">Fim do evento</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         COMPROMISSO FINAL
+    ═══════════════════════════════════ -->
+    <div class="commitment-banner" id="compromisso">
+      <h2>Meu Compromisso como CISO Elite</h2>
+
+      <div class="commit-field">
+        <div class="commit-field-label">Farei até amanhã</div>
+        <div class="editable" contenteditable="true" data-id="cmt-amanha" data-placeholder="Uma ação concreta e verificável..."></div>
+      </div>
+      <div class="commit-field">
+        <div class="commit-field-label">Comunicarei ao board</div>
+        <div class="editable" contenteditable="true" data-id="cmt-board" data-placeholder="Mensagem ou proposta específica..."></div>
+      </div>
+      <div class="commit-field">
+        <div class="commit-field-label">Implementarei em 30 dias</div>
+        <div class="editable" contenteditable="true" data-id="cmt-30d" data-placeholder="Projeto ou mudança com data-alvo..."></div>
+      </div>
+      <div class="commit-field">
+        <div class="commit-field-label">Medirei em 90 dias</div>
+        <div class="editable" contenteditable="true" data-id="cmt-90d" data-placeholder="Métrica ou resultado esperado..."></div>
+      </div>
+      <div class="commit-field" style="border:none;">
+        <div class="commit-field-label">Meu maior insight do dia</div>
+        <div class="editable tall" contenteditable="true" data-id="cmt-insight" data-placeholder="A ideia que vai mudar minha atuação como CISO..."></div>
+      </div>
+
+      <div class="sig-row">
+        <div class="sig-field" style="flex:2;">
+          <div class="sig-label">Assinatura</div>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field" style="flex:1;">
+          <div class="sig-label">Data</div>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field" style="flex:1;">
+          <div class="sig-label">27 de junho de 2026</div>
+          <div class="sig-line"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:.06em;">
+        MANUAL DO CISO ELITE · EDIÇÃO 2026 &nbsp;·&nbsp; WZ HOTEL JARDINS, SÃO PAULO &nbsp;·&nbsp; linktr.ee/dennyroger
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── AUTO-SAVE ──────────────────────────────────
+const STORAGE_KEY = 'ciso_elite_planner_2026';
+
+function getAllData() {
+  const data = {};
+  document.querySelectorAll('[data-id]').forEach(el => {
+    if (el.classList.contains('check-item')) {
+      data[el.dataset.id] = el.classList.contains('checked');
+    } else if (el.type === 'range') {
+      data[el.dataset.id] = el.value;
+    } else {
+      data[el.dataset.id] = el.innerText;
+    }
+  });
+  return data;
+}
+
+function saveAll() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getAllData()));
+  const dot = document.getElementById('saveDot');
+  dot.classList.add('visible');
+  setTimeout(() => dot.classList.remove('visible'), 1200);
+}
+
+function loadAll() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  Object.entries(data).forEach(([id, val]) => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (!el) return;
+    if (el.classList.contains('check-item')) {
+      if (val) el.classList.add('checked');
+      const icon = el.querySelector('.check-icon');
+      if (icon && val) icon.textContent = '✓';
+    } else if (el.type === 'range') {
+      el.value = val;
+      updateScale(el);
+    } else {
+      el.innerText = val;
+    }
+  });
+}
+
+// Debounced save
+let saveTimer;
+document.addEventListener('input', () => {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveAll, 600);
+});
+
+// ── SCALES ────────────────────────────────────
+function updateScale(input) {
+  const id = input.dataset.id;
+  const fill = document.getElementById(id + '-fill');
+  const val = document.getElementById(id + '-val');
+  if (fill) fill.style.width = ((input.value - 1) / 9 * 100) + '%';
+  if (val) val.textContent = input.value;
+}
+
+// Init scales
+document.querySelectorAll('input[type=range]').forEach(r => updateScale(r));
+
+// ── CHECKBOXES ────────────────────────────────
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const icon = el.querySelector('.check-icon');
+  icon.textContent = el.classList.contains('checked') ? '✓' : '';
+  saveAll();
+  updateProgress();
+}
+
+// ── PROGRESS ──────────────────────────────────
+function updateProgress() {
+  const editables = document.querySelectorAll('.editable:not(.check-item):not([type])');
+  const checks = document.querySelectorAll('.check-item');
+  let filled = 0;
+  let total = editables.length;
+
+  editables.forEach(el => {
+    if (el.innerText.trim().length > 0) filled++;
+  });
+
+  const pct = total > 0 ? Math.round(filled / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '% preenchido';
+}
+
+document.addEventListener('input', updateProgress);
+
+// ── COPY ALL ──────────────────────────────────
+function copyAll() {
+  const data = getAllData();
+  const sections = {
+    'Identificação': ['id-nome','id-cargo','id-empresa'],
+    'S1 — O Ponto de Inflexão do CISO (08:00)': ['s1-insight','s1-posicao','s1-meta90','s1-mud1','s1-mud2','s1-mud3','s1-acao'],
+    'S2 — Arquitetura de Decisão (08:30)': ['s2-friccao','s2-decisao-evitada','s2-framework','s2-ins1','s2-ins2','s2-ins3'],
+    'Pausa 10:00': ['p1-nota'],
+    'Insight — Vinicius Durbano (10:15)': ['i1-perspectiva','i1-mudanca','i1-frase'],
+    'S3 — Engenharia Cultural (10:30)': ['s3-cultura-hoje','s3-cultura-alvo','s3-init1','s3-init2','s3-init3'],
+    'Almoço / Networking (12:00)': ['p2-networking'],
+    'Insight — Jorge Azevedo (13:30)': ['i2-board','i2-comunicacao','i2-ris1','i2-frase'],
+    'S4 — Blueprint do vCISO (14:30)': ['s4-blueprint','s4-gap','s4-proximo'],
+    'Insight — Francisco Neto (15:30)': ['i3-ecosistema','i3-parceria','i3-aplicar'],
+    'S5 — Método ASSENTO (16:00)': ['s5-risco','s5-assento'],
+    'Insight — Apura (17:00)': ['i4-perspectiva','i4-aplicacao'],
+    'S6 — Inteligência de Mercado (17:15)': ['s6-br','s6-pt','s6-ao','s6-dif','s6-conexao-nome','s6-conexao-passo'],
+    'Compromisso Final': ['cmt-amanha','cmt-board','cmt-30d','cmt-90d','cmt-insight'],
+  };
+
+  const labels = {
+    'id-nome': 'Nome', 'id-cargo': 'Cargo', 'id-empresa': 'Empresa',
+    's1-insight': 'Maior insight', 's1-posicao': 'Onde estou hoje', 's1-meta90': 'Meta 90 dias',
+    's1-mud1': 'Mudança 1', 's1-mud2': 'Mudança 2', 's1-mud3': 'Mudança 3', 's1-acao': 'Próxima ação',
+    's2-friccao': 'Fricção sistêmica', 's2-decisao-evitada': 'Decisão evitada',
+    's2-framework': 'Framework de decisão', 's2-ins1': 'Insight 1', 's2-ins2': 'Insight 2', 's2-ins3': 'Insight 3',
+    'p1-nota': 'Reflexão pausa',
+    'i1-perspectiva': 'Perspectiva', 'i1-mudanca': 'Mudança de abordagem', 'i1-frase': 'Frase marcante',
+    's3-cultura-hoje': 'Cultura atual', 's3-cultura-alvo': 'Cultura-alvo',
+    's3-init1': 'Iniciativa 1', 's3-init2': 'Iniciativa 2', 's3-init3': 'Iniciativa 3',
+    'p2-networking': 'Networking almoço',
+    'i2-board': 'O que o board quer', 'i2-comunicacao': 'Mudança de comunicação',
+    'i2-ris1': 'Risco traduzido', 'i2-frase': 'Insight marcante',
+    's4-blueprint': 'Blueprint vCISO', 's4-gap': 'Gap operacional', 's4-proximo': 'Próximo passo',
+    'i3-ecosistema': 'Perspectiva ecossistema', 'i3-parceria': 'Oportunidade', 'i3-aplicar': 'Aplicação',
+    's5-risco': 'Risco em linguagem de capital', 's5-assento': 'Estratégia ASSENTO',
+    'i4-perspectiva': 'Perspectiva', 'i4-aplicacao': 'Aplicação',
+    's6-br': 'Brasil', 's6-pt': 'Portugal', 's6-ao': 'Angola',
+    's6-dif': 'Diferenciação', 's6-conexao-nome': 'Conexão', 's6-conexao-passo': 'Próximo passo',
+    'cmt-amanha': 'Farei até amanhã', 'cmt-board': 'Comunicarei ao board',
+    'cmt-30d': 'Em 30 dias', 'cmt-90d': 'Em 90 dias', 'cmt-insight': 'Maior insight do dia',
+  };
+
+  let text = 'PLANNER DO CISO ELITE — MANUAL DO CISO ELITE 2026\n';
+  text += '27 de junho de 2026 · WZ Hotel Jardins, São Paulo\n';
+  text += '═'.repeat(60) + '\n\n';
+
+  Object.entries(sections).forEach(([section, ids]) => {
+    const hasContent = ids.some(id => data[id] && String(data[id]).trim().length > 0);
+    if (!hasContent) return;
+    text += '▶ ' + section.toUpperCase() + '\n';
+    text += '─'.repeat(50) + '\n';
+    ids.forEach(id => {
+      const val = data[id];
+      if (val && String(val).trim().length > 0) {
+        const label = labels[id] || id;
+        text += `${label}: ${val}\n`;
+      }
+    });
+    text += '\n';
+  });
+
+  navigator.clipboard.writeText(text).then(() => showToast('Conteúdo copiado para a área de transferência'));
+}
+
+// ── CLEAR ALL ─────────────────────────────────
+function clearAll() {
+  if (!confirm('Apagar todos os seus dados deste planner? Esta ação não pode ser desfeita.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.querySelectorAll('.editable:not([type])').forEach(el => {
+    if (!el.classList.contains('check-item')) el.innerText = '';
+  });
+  document.querySelectorAll('.check-item').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.check-icon').textContent = '';
+  });
+  document.querySelectorAll('input[type=range]').forEach(r => {
+    r.value = 5; updateScale(r);
+  });
+  updateProgress();
+  showToast('Planner limpo');
+}
+
+// ── TOAST ─────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── SIDEBAR ACTIVE ────────────────────────────
+const cards = document.querySelectorAll('.section-card, .commitment-banner');
+const links = document.querySelectorAll('.sidebar a');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.35 });
+
+cards.forEach(c => observer.observe(c));
+
+// ── INIT ──────────────────────────────────────
+loadAll();
+updateProgress();
+</script>
+</body>
+</html>
